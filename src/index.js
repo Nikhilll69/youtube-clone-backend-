@@ -1,7 +1,7 @@
 
   import app from "./app.js";
 import connectDB from "./db/index.js";
-import cloudinary from "./utils/Cloudinary.js"
+import {uploadOnCloudinary} from "./utils/Cloudinary.js"
 const PORT = process.env.PORT || 8000;
 
 
