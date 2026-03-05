@@ -8,12 +8,16 @@ import { ApiResponse } from '../utils/ApiResponse.js'
 const registerUser = asyncHandler( async (req ,res) =>{
    const {fullName,email,username,password}=req.body
 
+   console.log("================================",req.files)
+
    if(
-      [fullName,email,username,password].some((feild)=>feild?.trim()==="")
+      [fullName, email, username, password].some(
+  (field) => !field?.trim()
+)
    ){ 
           throw  new ApiError(400,"All feilds are Required")
    }
- const existedUser=  User.findOne({
+ const existedUser= await  User.findOne({
       $or:[
          {username},
          {email}
@@ -23,17 +27,39 @@ const registerUser = asyncHandler( async (req ,res) =>{
    if(existedUser){
       throw new ApiError(409,"User with this email or username is already existed ")
    }
-   const avatarLocalpath=req.files?.avatar[0]?.path;
-   const coverLocalpath=req.files?.coverImage[0]?.path
-   if(!avatarLocalpath){
+ 
+   const avatarLocalPath=  req.files?.avatar[0]?.path;
+   
+  
+  if(!avatarLocalPath){
       throw new ApiError(400,"Avatar is required")
    }
-  const avatar= await uploadOnCloudinary(avatarLocalpath)
-  const coverImage=await uploadOnCloudinary(coverLocalpath) 
+   // const coverLocalpath= req.files?.coverImage[0]?.path;
+
+     let coverLocalPath;
+ 
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+        coverLocalPath = req.files.coverImage[0].path
+    }
+
+
+   console.log("avatarLocalpath",avatarLocalPath,"coverLocalpath",coverLocalPath
+      
+   )
+  
+   const avatar= await uploadOnCloudinary(avatarLocalPath)
+   
+   
+   // if (!avatar?.url) {
+   //     throw new ApiError(500, "Failed to upload avatar")
+   // }
+   
+   const coverImage=await uploadOnCloudinary(coverLocalPath) 
+   console.log("avatar",avatar,"coverImage",coverImage)
  const user = await  User.create({
    fullName,
    email,
-   avatar:avatar.url,
+   avatar:avatar?.url,
    coverImage:coverImage?.url || "",
    password,
    username:username.toLowerCase()
