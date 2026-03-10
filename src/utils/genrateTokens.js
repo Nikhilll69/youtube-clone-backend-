@@ -1,9 +1,15 @@
-const generateAccessAndRefreshToken=async(userId ,User)=>{
+import { User } from "../models/user.model.js";
+import { ApiError } from "../utils/ApiError.js";
+
+const generateAccessAndRefreshToken=async(userId)=>{
    try {
       const user=await User.findById(userId);
       
       const accessToken = user.generateAccessToken();
       const refreshToken = user.generateRefreshToken();
+      
+      user.refreshToken = refreshToken;
+      user.accessToken = accessToken;
       await user.save({validateBeforeSave:false})
       return {
          accessToken,
@@ -14,3 +20,5 @@ const generateAccessAndRefreshToken=async(userId ,User)=>{
       throw new ApiError(500,"Something went wrong while generating access and refresh token")
    }
 }
+
+export {generateAccessAndRefreshToken}
