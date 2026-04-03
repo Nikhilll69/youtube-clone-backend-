@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import { ApiError } from "./ApiError.js";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -8,18 +9,34 @@ cloudinary.config({
 });
 
 const uploadOnCloudinary = async (localFilePath) => {
+
+  console.log("step1")
+  if (!localFilePath) return null;
+    console.log("step2")
+
   try {
-    if (!localFilePath) return null;
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
     });
-    fs.unlinkSync(localFilePath);
-    console.log("file is uploaded on cloudinary", response.url);
+  console.log("step3")
+    console.log("file uploaded:", response.url);
+
     return response;
+
   } catch (error) {
-    if (localFilePath && fs.existsSync(localFilePath)) fs.unlinkSync(localFilePath);
-    console.error("Cloudinary upload failed:", error.message);
-    return null;
+    console.error("Cloudinary upload error:", error.message);
+
+    throw new ApiError(500, "Cloudinary upload failed");
+
+  } finally {
+    // ✅ ALWAYS runs (best place for cleanup)
+    try {
+      if (fs.existsSync(localFilePath)) {
+        fs.unlinkSync(localFilePath);
+      }
+    } catch (unlinkError) {
+      console.error("File delete failed:", unlinkError.message);
+    }
   }
 };
 
