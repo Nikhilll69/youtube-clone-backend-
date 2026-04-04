@@ -25,10 +25,16 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 import userRouter from './routes/user.routes.js'
 import videoRouter from "./routes/video.routes.js"
 import likeRouter from "./routes/like.route.js"
+import playlistRouter from "./routes/playlist.route.js"
+import tweetRouter from "./routes/tweet.route.js"
+import commentRouter from "./routes/comment.route.js"
 
 app.use('/api/v1/users',userRouter )
 app.use('/api/v1/videos',videoRouter)
 app.use('/api/v1/like', likeRouter)
+app.use('/api/v1/playlists', playlistRouter)
+app.use('/api/v1/tweets', tweetRouter)
+app.use('/api/v1/comments', commentRouter)
 
 
 //route decleration
